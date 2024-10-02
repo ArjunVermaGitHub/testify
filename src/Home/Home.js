@@ -10,7 +10,8 @@ export default function Home() {
   const [questions, setQuestions]=useState([])
   const [quiz, setQuiz]=useState("Select")
   const [quizzesJSX, setQuizzesJSX]=useState(<></>)
-  const {user}= useSelector(state=>state.user)
+  const {user}= useSelector(state=>{console.log(state)
+    return state.user})
   console.log(user)
   
   const getQuizzes=()=>{
@@ -21,7 +22,7 @@ export default function Home() {
   }
   const clickHandler=()=>{
         axios.get("http://localhost:3002/api/quiz/"+quiz).then(res=>{
-          console.log(res.data)
+          console.log({res})
           setQuestions(res.data[0].listOfIDs)
           setStarted(true)
         })
@@ -34,10 +35,8 @@ export default function Home() {
   console.log(quiz)
   return (<>
     <h1>{"Welcome " + user.name}</h1>
-    {started && <Navigate to="/test" state={{quiz: quiz, questions: questions}}/>}
-    <Link to= "/addQuestionPage">
-        <button>Add a Question</button>
-      </Link>
+    {started && <Navigate to="/test" state={{quiz, questions}}/>}
+    
     Select a quiz:
     <select value={quiz} onChange={e=>setQuiz(e.target.value)}>
       {quizzesJSX}

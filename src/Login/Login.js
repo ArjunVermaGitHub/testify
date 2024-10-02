@@ -9,7 +9,7 @@ import { setUser } from '../features/users/userSlice'
 export default function Login() {
     const [message, setMessage] = useState('')
     const dispatch = useDispatch()
-  
+    
     const handleSubmit=(e)=>{
         e.preventDefault()        
         axios.post("http://localhost:3002/api/login",
@@ -24,6 +24,7 @@ export default function Login() {
         }).then(res=>{
             console.log(res.data)
             dispatch(setUser(res.data))
+            localStorage.setItem("user", JSON.stringify(res.data))
             res.data && setMessage("Logged in")
         }).catch(err=>{
             console.error(err)

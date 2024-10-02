@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import './Question.scss'
 
 export default function Question(props) {
   const [ans, setAns]=useState(0)
@@ -21,21 +22,28 @@ export default function Question(props) {
   }
   
 
-  console.log(props.correctOptionNo, props.attemptedObject)
   let arr=props.options.map((option,index)=>
     {
-    return (<>
-      <input type="radio" value={option} name={props.q_id} onClick={()=>setAns(index+1)} disabled={attempted}/>
-      {option}<br/>
-    </>)}
+    return (<div className='option-holder'>
+      <div className='option-selector'>
+        <input type="radio" value={option} name={props.q_id} onClick={()=>setAns(index+1)} disabled={attempted}/>
+      </div>     
+      <div className='option-text'>
+        {option}
+      </div>
+      
+      <br/>
+    </div>)
+    }
   )
   return (
-    <div style={{display:props.shouldShow?"block":"none"}}>{props.q}<br/>
+    <div style={{display:props.shouldShow?"block":"none"}}>{props.number}. {props.q}<br/>
       {arr}
-
       <br/>
-      <button disabled={attempted} onClick={()=>scoreHandler()}>Select</button>
-      <button disabled={!attempted} onClick={()=>scoreUndoHandler()}>Deselect</button>
+      <div className='button-holder'>
+        <button disabled={attempted} onClick={()=>scoreHandler()}>Select</button>
+        <button disabled={!attempted} onClick={()=>scoreUndoHandler()}>Deselect</button>
+      </div>
       <br/>
       <br/>
       {selectedMessage}

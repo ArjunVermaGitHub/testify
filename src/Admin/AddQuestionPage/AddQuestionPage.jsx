@@ -12,7 +12,6 @@ export default function AddQuestionPage() {
         <br/></>)
     }
     const handleSubmit=(e)=>{
-        console.log(e.target.qId.value)
         e.preventDefault()
         let options=[]
         for(let i in inputsJsx){
@@ -31,8 +30,10 @@ export default function AddQuestionPage() {
                 'Content-Type' : 'application/json'
             }
         }).then(res=>{
+            console.log(res)
             res.data && setMessage("Successfully added question")
         }).catch(err=>{
+            console.log(err)
             setMessage("There was an error in submitting the question")
         })
     }

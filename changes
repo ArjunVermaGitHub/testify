@@ -1,13 +1,17 @@
 Category parameter
 correctoption should be a number/index
-Quiz model-heading,desc,number of questions,list of 10 IDs
+Quiz model-heading,desc,number of questions, list of 10 IDs
 User-name, questions history-list of attempted questions by ID and his marked option
 score-user, quiz
 
 Questions on separate page
+ 
+Whats missing: logging mechanism, design, 
+validation
 
+Side panel for navigating questions
+Timer
+Add difficulty level parameter to each question
+View improve
 
-automate input radio button code
-see if _id can be updated in mongo
-
-Whats missing: logging mechanism, design, validation
+https://pokepast.es/ce61e34fda9150b1

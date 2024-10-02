@@ -2,11 +2,12 @@ import React, {useState, useEffect } from 'react'
 import Question from '../Question/Question'
 import ResultButton from '../ResultButton/ResultButton'
 import axios from 'axios'
-import { useLocation } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
+import './Test.scss'
 
 export default function Test(props) {
     const {state} = useLocation()
-
+    const navigate = useNavigate()
     const [mode,setMode] = useState("none")
     const [score, setScore]=useState(0)
     const [i, setI]=useState(0)
@@ -15,7 +16,7 @@ export default function Test(props) {
     let [questionsArray, setQuestionsArray]=useState([])
     
     const getQuestions=(questions=[])=>{
-        axios.get("http://localhost:3002/api/questions", {params:{questions:questions}}, {
+        axios.get("http://localhost:3002/api/questions", {params:{questions}}, {
             headers: { 
                 'Content-Type' : 'application/json'
             }
@@ -35,6 +36,7 @@ export default function Test(props) {
     
     let questionsJSX=questionsArray?.map((question, index)=>
         <Question 
+            number={index+1}
             q={question.question} 
             q_id={question.id} 
             options={question.options}
@@ -47,32 +49,36 @@ export default function Test(props) {
         />
     )
     return ( 
-            <div><h1>{state.quiz}</h1>
+            <div>
+                <div className='quiz-header'>
+                        <h1>{state.quiz}</h1>
+                    <div className='quiz-header-actions'>
+                        <button onClick={()=>{
+                            navigate("/")
+                        }}>Exit quiz</button>
+                    </div>
+                </div>
+                <div className='button-holder'>
                 {
                     mode==="none"?(<><button onClick={()=>setMode("questions")}>15 questions</button>
-                    <button onClick={()=>setMode("minutes")}>15 minutes</button></>)
-                    :
-                    ""
+                    <button onClick={()=>setMode("minutes")}>15 minutes</button></>) : ""
                 }
-                {(mode==="questions")?
+                </div>
+                {(mode==="questions") &&
                     <>
                         {questionsJSX}
-                        {i-1>=0?
+                        {i-1>=0 &&
                             <button onClick={()=>setI(i-1)}>Previous</button>
-                            :
-                        ""}
-                        {i+1<questionsArray.length?
+                        }
+                        {i+1<questionsArray.length &&
                             <button onClick={()=>setI(i+1)}>Next</button>
-                            :
-                        ""}
-                        {i==(questionsArray.length-1)?
+                        }
+                        {i==(questionsArray.length-1)  &&
                             <ResultButton score={score} quiz={state.quiz} attemptedObject={attemptedObject}/>
-                            :
-                        ""}
-                    </>
-                :""}
+                        }
+                    </>}
                     
-                {(mode==="minutes")?<div>15 minutes</div>:""}
+                {(mode==="minutes")?<div>15 minutes</div> : "" }
             </div>
     )
 }
