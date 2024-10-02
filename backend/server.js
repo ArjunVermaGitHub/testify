@@ -9,14 +9,18 @@ import User from './models/User.js'
 import cors from "cors"
 import jwt from 'jsonwebtoken'
 import bcrypt from "bcrypt"
+import logger from './middleware/logger.js'
+import errorHandler from './middleware/errorHandler.js'
 
 const app=express()
 app.use(express.json())
+app.use(logger)
+
 dotenv.config()
 
 const corsOptions ={
    origin:'*', 
-   credentials:true,            //access-control-allow-credentials:true
+   credentials:true, //access-control-allow-credentials:true
    optionSuccessStatus:200,
 }
 
@@ -45,10 +49,16 @@ mongoose.connect(uri,
 app.get("/",async(req,res,next)=>{
     res.send("Welcome to the backend")
 })
-// Get all questions, , need to also get them from array
-app.get("/api/questions", async (req,res,next)=>{
+
+app.get("/api/questions", async (req,res,next)=>{   // Get all questions, , need to also get them from array
+    res.header("Access-Control-Allow-Origin", "*")
+    // try{
+    //     throw new Error('test error')
+    // }
+    // catch(err){
+    //     next(err)
+    // }
     try {
-        console.log(req.query.questions)
         let q
         if(req.query.questions===undefined || req.query.questions?.length===0)
             q=await Question.find()
@@ -61,17 +71,18 @@ app.get("/api/questions", async (req,res,next)=>{
     }
 })
 
-//Post a question
-app.post("/api/question", async (req,res,next)=>{
+
+app.post("/api/question", async (req,res,next)=>{ //Post a question
+    res.header("Access-Control-Allow-Origin", "*")
+
     const q = new Question({
         id:req.body.id?req.body.id:Date.now(),
         question:req.body.question,
         options:req.body.options,
-        correctOptionNo:req.body.correctOptionNo,
+        correctOptionNo:+req.body.correctOptionNo,
         category:req.body.category?req.body.category:"misc"
     })
     try{
-        console.log(q.options.indexOf(q.correctOption))
         //if correctoption not in options, throw err
         if(q.correctOptionNo<1)
             throw {message: "The correct option number cant be less than 1"}
@@ -80,12 +91,13 @@ app.post("/api/question", async (req,res,next)=>{
         const newQuestion=await q.save()
         res.status(201).json(newQuestion)
     }catch(err){
-        res.status(400).json({message:err.message})
+        // res.status(400).json({message:err.message})
     }
 })
 
-//Get question by ID
-app.get("/api/question/:id", async (req,res,next)=>{
+app.get("/api/question/:id", async (req,res,next)=>{ //Get question by ID
+    res.header("Access-Control-Allow-Origin", "*")
+
     try{
         const q=await Question.find({id:req.params.id})
         res.status(201).json(q)
@@ -96,6 +108,8 @@ app.get("/api/question/:id", async (req,res,next)=>{
 })
 
 app.get("/api/score",  async (req,res,next)=>{
+    res.header("Access-Control-Allow-Origin", "*")
+
     try {
         const s=await Score.find()
         res.json(s)
@@ -106,6 +120,8 @@ app.get("/api/score",  async (req,res,next)=>{
 })
 
 app.post("/api/score", async (req,res,next)=>{
+    res.header("Access-Control-Allow-Origin", "*")
+
     console.log(req.body)
     const s = new Score({
         ...req.body
@@ -118,7 +134,8 @@ app.post("/api/score", async (req,res,next)=>{
     }
 })
 
-app.get("/api/quizzes", async (req,res,next)=>{
+app.get("/api/quizzes", async (req,res,next)=>{     // get list of all quizzes
+    res.header("Access-Control-Allow-Origin", "*")
     try {
         const q=await Quiz.find()
         res.json(q)
@@ -127,7 +144,8 @@ app.get("/api/quizzes", async (req,res,next)=>{
         res.status(500).json({message:err.message})
     }
 })
-app.post("/api/quiz", async (req,res,next)=>{
+app.post("/api/quiz", async (req,res,next)=>{   // create a quiz
+    res.header("Access-Control-Allow-Origin", "*")
     const q = new Quiz({
         id:req.body.id?req.body.id:Date.now(),
         heading:req.body.heading,
@@ -139,12 +157,14 @@ app.post("/api/quiz", async (req,res,next)=>{
         if(q.numberOfQuestions>q.listOfIDs.length)
             throw {message:"You havent provided enough IDs or have set too high a number of questions"}
         const newQuiz=await q.save()
+
         res.status(201).json(newQuiz)
     }catch(err){
         res.status(400).json({message:err.message})
     }
 })
-app.get("/api/quiz/:id", async (req,res,next)=>{
+app.get("/api/quiz/:id", async (req,res,next)=>{    //get a quiz by ID
+    res.header("Access-Control-Allow-Origin", "*")
     try{
         const quiz=await Quiz.find({id:req.params.id})
         res.status(201).json(quiz)
@@ -154,7 +174,27 @@ app.get("/api/quiz/:id", async (req,res,next)=>{
     }
 })
 
+app.put("/api/quiz/:id", async (req,res,next)=>{
+    res.header("Access-Control-Allow-Origin", "*")
+    try{
+        console.log("req.body is ",req.body)
+        const quiz = Quiz.findOneAndUpdate(req.params.id, {
+            ...req.body
+        }, {new:true})
+        console.log(quiz)
+        res.json(quiz)
+    }
+    catch(err){
+        res.status(400).json({message:err.message})
+    }
+})
+
+app.use(errorHandler);
+  
+
+
 app.post("/api/register", async(req,res,next)=>{
+    res.header("Access-Control-Allow-Origin", "*")
     const {name, email, password} = req.body
     const userExists = await User.findOne({email})
     if(userExists){
@@ -181,11 +221,12 @@ app.post("/api/register", async(req,res,next)=>{
     }
 })
 app.post("/api/login", async(req,res,next)=>{
+    res.header("Access-Control-Allow-Origin", "*")
     console.log("API called")
     const {email, password} = req.body
     try{
         const user = await User.findOne({email})
-        console.log(await bcrypt.compare(password, user.password ))
+        console.log('found user')
         if(user && (await bcrypt.compare(password, user.password ))){
             res.json({
                 id: user.id,
@@ -201,16 +242,25 @@ app.post("/api/login", async(req,res,next)=>{
 })
 
 app.put("/api/user/:id", async (req,res,next)=>{
+    res.header("Access-Control-Allow-Origin", "*")
     const user = await User.findByIdAndUpdate(req.params.id, {
         ...req.body
     }, {new:true})
     res.json(user)
 })
-
+app.get("/api/users", async (req,res,next)=>{     // get list of all quizzes
+    res.header("Access-Control-Allow-Origin", "*")
+    try {
+        const u=await User.find()
+        res.json(u)
+    }
+    catch(err){
+        res.status(500).json({message:err.message})
+    }
+})
 const generateToken=(id)=>{
     return jwt.sign({id}, process.env.JWT_SECRET, {expiresIn:'30d'})
 }
-
 
 // app.post("/api/questions",(req,res,next)=>{
 //     if( req.body.constructor!==Array)
