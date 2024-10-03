@@ -1,0 +1,11 @@
+# Railway Configuration
+
+[[services]]
+name = "backend"
+path = "./backend"
+start = "npm start"  # Command for backend service
+
+[[services]]
+name = "frontend"
+path = "./frontend"
+start = "npm run build"  # Command for frontend service
