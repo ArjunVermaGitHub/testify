@@ -1,11 +1,6 @@
-# Railway Configuration
+[build]
+builder = "nixpacks"
+workingDirectory = "backend"
 
-[[services]]
-name = "backend"
-path = "./backend"
-start = "npm start"  # Command for backend service
-
-[[services]]
-name = "frontend"
-path = "./frontend"
-start = "npm run build"  # Command for frontend service
+[start]
+command = "npm start"
