@@ -24,12 +24,8 @@ const corsOptions ={
    optionSuccessStatus:200,
 }
 
-
-
-
 const uri=process.env.MONGODB_URI
 const port=process.env.PORT
-
 
 mongoose.connect(uri,
     {
