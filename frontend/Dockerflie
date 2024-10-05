@@ -1,0 +1,29 @@
+# frontend/Dockerfile
+
+# Use the official Node.js image to build the frontend app
+FROM node:18-alpine as build
+
+# Set working directory
+WORKDIR /app
+
+# Copy package.json and install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy the entire frontend app
+COPY . .
+
+# Build the frontend app
+RUN npm run build
+
+# Use a lightweight web server to serve the frontend
+FROM nginx:alpine
+
+# Copy the build output to the web server's root directory
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Expose port 80 for the frontend
+EXPOSE 80
+
+# Start the web server
+CMD ["nginx", "-g", "daemon off;"]
